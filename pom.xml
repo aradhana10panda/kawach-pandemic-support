@@ -17,8 +17,8 @@
 
     <properties>
         <java.version>11</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.compiler.release>11</maven.compiler.release>
+        
     </properties>
 
     <modules>
@@ -26,6 +26,14 @@
         <module>eureka-server</module>
         <module>api-gateway</module>
         <module>product-webapp</module>
+        <module>user-management-service</module>
+        <module>user-authentication-service</module>
+        <module>doctor-consultation-service</module>
+        <module>chat-service</module>
+        <module>volunteer-revert-service</module>
+        <module>resource-request-service</module>
+        <module>information-service</module>
+        <module>patient-otp-service</module>
     </modules>
 
     <dependencies>
@@ -36,7 +44,7 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.5</version>
+            <version>0.8.11</version>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
@@ -94,7 +102,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.11</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -153,7 +161,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.11</version>
             </plugin>
         </plugins>
     </reporting>
