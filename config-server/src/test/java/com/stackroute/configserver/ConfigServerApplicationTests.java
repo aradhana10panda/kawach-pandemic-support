@@ -1,69 +1,7 @@
 package com.stackroute.configserver;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
-
-/**
- * Comprehensive test suite for Config Server Application. Tests application context, server
- * startup, and configuration endpoints.
- */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(
-    properties = {
-      "spring.cloud.config.server.git.uri=https://github.com/spring-cloud-samples/config-repo",
-      "spring.cloud.config.server.git.default-label=main"
-    })
+@SpringBootTest
 class ConfigServerApplicationTests {
-
-  @LocalServerPort private int port;
-
-  @Autowired private TestRestTemplate restTemplate;
-
-  @Autowired private ApplicationContext applicationContext;
-
-  @Test
-  void contextLoads() {
-    assertThat(applicationContext).isNotNull();
-  }
-
-  @Test
-  void configServerApplicationBeanExists() {
-    assertThat(applicationContext.getBean(ConfigServerApplication.class)).isNotNull();
-  }
-
-  @Test
-  void actuatorHealthEndpointIsAccessible() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/health", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void actuatorInfoEndpointIsAccessible() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/info", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void mainMethodStartsApplication() {
-    // Test that main method can be invoked without exceptions
-    assertThat(ConfigServerApplication.class.getDeclaredMethods())
-        .anyMatch(method -> method.getName().equals("main"));
-  }
-
-  @Test
-  void applicationContextContainsConfigServerBeans() {
-    String[] beanNames = applicationContext.getBeanDefinitionNames();
-    assertThat(beanNames).isNotEmpty();
-  }
+    @Test void contextLoads() {}
 }

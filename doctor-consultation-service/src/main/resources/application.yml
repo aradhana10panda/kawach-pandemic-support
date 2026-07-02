@@ -1,0 +1,34 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: doctor-consultation-service
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: kawach_doctor_consultation
+    redis:
+      host: localhost
+      port: 6379
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8076/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+rabbitmq:
+  exchange: kawach.exchange
+  queue:
+    doctor: doctor.queue
+  routing:
+    key:
+      doctor: doctor.routing.key
