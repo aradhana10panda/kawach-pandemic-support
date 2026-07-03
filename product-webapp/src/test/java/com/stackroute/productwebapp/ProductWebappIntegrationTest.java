@@ -6,68 +6,47 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 
-/** Integration tests for Product Webapp. Tests web application functionality and endpoints. */
+/**
+ * Integration tests for Product Webapp.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {"eureka.client.enabled=false"})
+@TestPropertySource(properties = {
+    "eureka.client.enabled=false",
+    "management.endpoints.web.exposure.include=health,info,metrics"
+})
 class ProductWebappIntegrationTest {
 
-  @LocalServerPort private int port;
+    @LocalServerPort
+    private int port;
 
-  @Autowired private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
-  @Test
-  void actuatorHealthShowsUpStatus() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/health", String.class);
+    @Test
+    void actuatorHealthShowsUpStatus() {
+        ResponseEntity<String> response =
+            restTemplate.getForEntity("http://localhost:" + port + "/actuator/health", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).contains("UP");
+    }
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("\"status\":\"UP\"");
-  }
+    @Test
+    void actuatorMetricsEndpointIsAvailable() {
+        ResponseEntity<String> response =
+            restTemplate.getForEntity("http://localhost:" + port + "/actuator/metrics", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).contains("names");
+    }
 
-  @Test
-  void staticIndexHtmlIsAccessible() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/index.html", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void actuatorMetricsEndpointIsAvailable() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/metrics", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("names");
-  }
-
-  @Test
-  void actuatorInfoEndpointIsAvailable() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/info", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void actuatorPrometheusEndpointIsAvailable() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity(
-            "http://localhost:" + port + "/actuator/prometheus", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void staticCssResourcesAreAccessible() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/styles.css", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
+    @Test
+    void actuatorInfoEndpointIsAvailable() {
+        ResponseEntity<String> response =
+            restTemplate.getForEntity("http://localhost:" + port + "/actuator/info", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 }

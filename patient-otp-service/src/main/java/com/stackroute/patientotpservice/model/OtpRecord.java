@@ -1,6 +1,6 @@
 package com.stackroute.patientotpservice.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

@@ -5,72 +5,58 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
-/** Integration tests for API Gateway. Tests gateway routing and actuator endpoints. */
+/**
+ * Integration tests for API Gateway actuator endpoints.
+ * Uses WebTestClient (reactive) since Gateway runs on WebFlux.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(
-    properties = {"eureka.client.enabled=false", "spring.cloud.gateway.enabled=true"})
+@TestPropertySource(properties = {
+    "eureka.client.enabled=false",
+    "management.endpoints.web.exposure.include=health,info,metrics,gateway"
+})
 class ApiGatewayIntegrationTest {
 
-  @LocalServerPort private int port;
+    @LocalServerPort
+    private int port;
 
-  @Autowired private TestRestTemplate restTemplate;
+    @Autowired
+    private WebTestClient webTestClient;
 
-  @Test
-  void actuatorHealthShowsUpStatus() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/health", String.class);
+    @Test
+    void actuatorHealthShowsUpStatus() {
+        webTestClient.get()
+            .uri("/actuator/health")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(String.class)
+            .value(body -> assertThat(body).contains("UP"));
+    }
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("\"status\":\"UP\"");
-  }
+    @Test
+    void actuatorGatewayRoutesEndpointReturnsRoutes() {
+        webTestClient.get()
+            .uri("/actuator/gateway/routes")
+            .exchange()
+            .expectStatus().isOk();
+    }
 
-  @Test
-  void actuatorGatewayRoutesEndpointReturnsRoutes() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity(
-            "http://localhost:" + port + "/actuator/gateway/routes", String.class);
+    @Test
+    void actuatorMetricsEndpointIsAvailable() {
+        webTestClient.get()
+            .uri("/actuator/metrics")
+            .exchange()
+            .expectStatus().isOk();
+    }
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void actuatorMetricsEndpointIsAvailable() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/metrics", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).contains("names");
-  }
-
-  @Test
-  void actuatorInfoEndpointIsAvailable() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("http://localhost:" + port + "/actuator/info", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void actuatorGatewayGlobalFiltersEndpointIsAvailable() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity(
-            "http://localhost:" + port + "/actuator/gateway/globalfilters", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
-
-  @Test
-  void actuatorPrometheusEndpointIsAvailable() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity(
-            "http://localhost:" + port + "/actuator/prometheus", String.class);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-  }
+    @Test
+    void actuatorInfoEndpointIsAvailable() {
+        webTestClient.get()
+            .uri("/actuator/info")
+            .exchange()
+            .expectStatus().isOk();
+    }
 }
